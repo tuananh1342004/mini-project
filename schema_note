@@ -1,0 +1,15 @@
+All records have the following field:
+	- uuid (str): some unique identifier
+	- number (int): ?
+	- shortname (str)
+	- longname (str)
+	- km (float)
+	- agency (str)
+	- longitude (float)
+	- lattitude (float)
+	
+
+WASSERSTAND ROHDATEN: water level raw data
+WASSERSTANDVORHERSAGE: water level forecast
+LUFTTEMPERATUR: air temperature
+ABFLUSS: drain
