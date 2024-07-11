@@ -7,9 +7,17 @@ All records have the following field:
 	- agency (str)
 	- longitude (float)
 	- lattitude (float)
+	- agency (str)
+	- water(struct)
+		+ longname (str)
+		+ shortname(str)
 	
+In the timeseries field, there are five different categories of log: 
++ WASSERSTAND ROHDATEN: water level raw data
++ WASSERSTANDVORHERSAGE: water level forecast
++ WASSERTEMPERATUR: water temperature
++ LUFTTEMPERATUR: air temperature 
++ ABFLUSS: drain
 
-WASSERSTAND ROHDATEN: water level raw data
-WASSERSTANDVORHERSAGE: water level forecast
-LUFTTEMPERATUR: air temperature
-ABFLUSS: drain
+The idea is that, we will create a main table for storing informations that all records must have, then create a table, each corresponding to a
+category of log
