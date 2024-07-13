@@ -101,7 +101,7 @@ services:
     environment:
       - SUPERSET_DATABASE_URI=postgresql+psycopg2://postgres:12345@db:5432/db
       - SUPERSET_LOAD_EXAMPLES=no
-      - SUPERSET_SECRET_KEY=f3d7e8f15ee60b1f4e0d7b5e6883dafa
+      - SUPERSET_SECRET_KEY=3f599ba71fa87fb4bdd17de3a1a8d97a
     ports:
       - "8088:8088"
     networks:
