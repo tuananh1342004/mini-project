@@ -1,1 +1,3 @@
 schema.drawio
+docker/pg_data/*
+docker/scripts/*

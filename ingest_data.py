@@ -29,13 +29,13 @@ def read_key_value(json_str):
     return key_value_list
 
 
-def insert_data(table, df, conn_param):
+def insert_data(table, primary_key, df, conn_param):
     columns = [f'"{col}"' for col in df.schema.names]
     data = [tuple(row) for row in df.collect()]
 
     conn = psycopg2.connect(**conn_param)
     cursor = conn.cursor()
-    insert_query = f"INSERT INTO {table} ({', '.join(columns)}) VALUES %s"
+    insert_query = f"INSERT INTO {table} ({', '.join(columns)}) VALUES %s ON CONFLICT ({primary_key}) DO NOTHING"
     execute_values(cursor, insert_query, data)
     conn.commit()
     cursor.close()
@@ -103,10 +103,10 @@ if __name__ == '__main__':
         "port": os.getenv('port')
     }
 
-    insert_data("responses", response_df, conn_params)
-    insert_data("timeseries_item", timeseries_item, conn_params)
-    insert_data("timeseries_attribute", timeseries_attribute_df, conn_params)
-    insert_data("timeseries_value", timeseries_attr_val_df, conn_params)
+    insert_data("responses", "uuid", response_df, conn_params)
+    insert_data("timeseries_item", "item_id", timeseries_item, conn_params)
+    insert_data("timeseries_attribute", "attribute", timeseries_attribute_df, conn_params)
+    insert_data("timeseries_value", "id", timeseries_attr_val_df, conn_params)
 
     spark.stop()
 

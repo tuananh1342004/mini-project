@@ -15,8 +15,11 @@ services:
     ports:
       - '8080:8080'
       - '7077:7077'
+      - '4040:4040'
     networks:
       - net
+    volumes:
+      - ./scripts:/opt/bitnami/spark/scripts
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080"]
       interval: 30s
@@ -39,6 +42,7 @@ services:
     user: root
     ports:
       - '8081:8081'
+      - '4041:4041'
     networks:
       - net
     depends_on:
@@ -61,6 +65,7 @@ services:
     user: root
     ports:
       - '8082:8082'
+      - '4042:4042'
     networks:
       - net
     depends_on:
@@ -99,7 +104,7 @@ services:
     networks:
       - net
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - ./pg_data:/var/lib/postgresql/data
 
   superset:
     image: apache/superset:latest
