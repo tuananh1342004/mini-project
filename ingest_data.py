@@ -33,14 +33,46 @@ def insert_data(table, primary_key, df, conn_param):
     columns = [f'"{col}"' for col in df.schema.names]
     data = [tuple(row) for row in df.collect()]
 
-    conn = psycopg2.connect(**conn_param)
-    cursor = conn.cursor()
-    insert_query = f"INSERT INTO {table} ({', '.join(columns)}) VALUES %s ON CONFLICT ({primary_key}) DO NOTHING"
-    execute_values(cursor, insert_query, data)
-    conn.commit()
-    cursor.close()
-    conn.close()
+    try:
+        conn = psycopg2.connect(**conn_param)
+        cursor = conn.cursor()
+        insert_query = f"INSERT INTO {table} ({', '.join(columns)}) VALUES %s ON CONFLICT ({primary_key}) DO NOTHING"
+        execute_values(cursor, insert_query, data)
+        conn.commit()
 
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        conn.rollback()
+
+    finally:
+        cursor.close()
+        conn.close()
+
+def create_view(conn_param):
+    sql_query = """
+        CREATE OR REPLACE VIEW timeseries_data AS
+        SELECT
+            ti.uuid,
+            ti.item_id, 
+            ta.attribute, 
+            tv.value
+        FROM timeseries_value tv 
+            JOIN timeseries_attribute ta ON tv.attribute = ta.attribute
+            JOIN timeseries_item ti ON tv.item_id = ti.item_id;
+    """
+    try:
+        conn = psycopg2.connect(**conn_param)
+        cursor = conn.cursor()
+        cursor.execute(sql_query)
+        conn.commit()
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        conn.rollback()
+        
+    finally:
+        cursor.close()
+        conn.close()
 
 if __name__ == '__main__':
     spark = SparkSession.builder \
@@ -86,7 +118,6 @@ if __name__ == '__main__':
     timeseries_parsed_df = timeseries_parsed_df.withColumn("key", col("exploded_pair").getItem("key")) \
                     .withColumn("value", col("exploded_pair").getItem("value"))
     timeseries_parsed_df = timeseries_parsed_df.drop("timeseries_data", "exploded_pair","timeseries_parsed")
-    timeseries_parsed_df.show(truncate=False)
 
     timeseries_item = timeseries_df.select(col("item_id"),col("uuid"))
 
@@ -107,6 +138,6 @@ if __name__ == '__main__':
     insert_data("timeseries_item", "item_id", timeseries_item, conn_params)
     insert_data("timeseries_attribute", "attribute", timeseries_attribute_df, conn_params)
     insert_data("timeseries_value", "id", timeseries_attr_val_df, conn_params)
-
+    create_view(conn_params)
     spark.stop()
 
